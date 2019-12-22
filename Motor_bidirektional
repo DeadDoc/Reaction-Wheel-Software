@@ -1,0 +1,59 @@
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
+#include <SoftwareSerial.h>
+#include <PID_v1.h>
+#include <Servo.h>
+
+//Initialisierung
+//Variablen
+int i = 90;
+
+//Servo
+Servo myservo;
+
+void setup() 
+{
+  //SerialPorts einrichten
+  Serial.begin(9600);
+
+  //Servo-PIN festlegen (MIN: 1ms, MAX: 2ms)
+  myservo.attach(2, 1000, 2000);
+
+}
+
+void loop() 
+{
+    //Links schneller
+    for(i=90;i>0;i--)
+    {
+      myservo.write(i);
+      Serial.println(i);
+      delay(200);
+    }
+    
+    //Links langsamer
+    for(i=0;i<90;i++)
+    {
+      myservo.write(i);
+      Serial.println(i);
+      delay(200);
+    }
+    
+    //Rechts schneller
+    for(i=90;i<180;i++)
+    {
+      myservo.write(i);
+      Serial.println(i);
+      delay(200);
+    }
+    
+    //Rechts langsamer
+     for(i=180;i>90;i--)
+    {
+      myservo.write(i);
+      delay(200);
+      Serial.println(i);
+    }
+}
