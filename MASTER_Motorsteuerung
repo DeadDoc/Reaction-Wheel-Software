@@ -8,13 +8,12 @@
 
 //Initialisierung
 //Variablen
-int u =1, pos=0, pos1=0;
 double gyro_value;
 
 //PID-Regler
 double Setpoint, Input, Output;
-double Kd=1;
-double Ki =0;
+double Kd = 0.5;
+double Ki = 0;
 double Kp = 5;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
@@ -28,21 +27,26 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55);
 Servo myservo;
 
 //Funktionen
-//Motor das erste Mal starten
-void Motor_hochfahren()
+double RemoveNoise(double Input, float GrenzeUnten, float GrenzeOben)
 {
-  for(pos=0;pos<=90;pos+=1)
+  int ReturnValue = 0;
+
+  if(Input >=GrenzeUnten && Input <= GrenzeOben)
   {
-      Output = pos;
-      myservo.write(Output);
-      delay(200);
+    ReturnValue = 0;
   }
+  else
+  {
+    ReturnValue = Input;
+  }
+
+  return ReturnValue;
 }
 
 void setup() 
 {
   //SerialPorts einrichten
-  //Serial.begin(9600);
+  mySerial.begin(4800);
   Serial.begin(9600);
   
   //Servo-PIN festlegen
@@ -58,9 +62,6 @@ void setup()
   bno.begin();
   bno.setExtCrystalUse(true);
   
-
-  //Motor hochspinnen
-  //Motor_hochfahren();
 }
 
 void loop() 
@@ -68,20 +69,22 @@ void loop()
   //Sensorwert abfragen
   imu::Vector<3> gyroscope = bno.getVector(Adafruit_BNO055::VECTOR_GYROSCOPE);
   gyro_value = gyroscope.z();
-  //gyro_value = digitalRead(6);
-
+  
   //PID-Regelung
   myPID.Compute();
   Input = gyro_value;
+  Input = RemoveNoise(gyro_value, -0.12, 0.12);
   myservo.write(Output+90);
-  //myservo.write(180);
+
   //Plotten von Werten
-  
-  
-  //Bluetooth senden
   Serial.print(Input);
   Serial.print(","); 
   Serial.println(Output);
+  
+  //Bluetooth senden
+  mySerial.print(Input);
+  mySerial.print(";"); 
+  mySerial.println(Output);
 
   delay(200);
 }
