@@ -57,7 +57,7 @@ void setup()
   bno.setExtCrystalUse(true);
 
   //Motor hochspinnen
-  Motor_hochfahren();
+  //Motor_hochfahren();
 }
 
 void loop() 
