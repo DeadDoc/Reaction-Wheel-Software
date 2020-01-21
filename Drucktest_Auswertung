@@ -1,0 +1,57 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+data  = fileread('reaction_wheel_dichtigkeitstest.log');
+data1=splitlines(data);
+data1 = data1(~cellfun('isempty', data1')); %delete empty rows
+splitdata1 = split(data1(1:474),";",2);
+splitdata2 = split(data1(475:length(data1)),["] ",";"],2);
+splitdata2=splitdata2(:,2:3);
+data2=[splitdata1;splitdata2];
+data2=str2double(data2);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Temp = data2(:,1);
+PressureReal = data2(:,2);
+n = length(Temp);
+PressureIdeal = zeros(n,1);
+PressureIdeal(1) = PressureReal(1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for i=1:n
+    t(i) = Temp(i);
+    if(isnan(Temp(i)))
+        t(i) = Temp(i-1);
+    end
+end
+for i=1:n-1
+    PressureIdeal(i+1) = PressureIdeal(i)*((t(i+1)+273.15)/(t(i)+273.15));
+end
+for i=1:n
+    Differenz_RealIdeal(i) = (PressureReal(i)-PressureIdeal(i));
+end
+
+%Daten Smooth
+PressureReal_S = smoothdata(PressureReal);
+PressureIdeal_S = smoothdata(PressureIdeal);
+t_S = smoothdata(t);
+
+Differenz_RealIdeal_S = smoothdata(Differenz_RealIdeal);
+
+DruckAenderung = diff(Differenz_RealIdeal);
+DruckAenderung_S = smoothdata(DruckAenderung);
+
+%Plotten
+subplot(3,1,1)
+plot(PressureReal_S);
+hold on 
+plot(PressureIdeal_S);
+legend('Realdruck','Idealdruck')
+title('Realdruck vs. Idealdruck');
+
+subplot(3,1,2)
+plot(Differenz_RealIdeal_S);
+hold on
+plot(DruckAenderung_S);
+legend('Abweichung Realdurck von Idealdruck (RD-ID)','Druckänderung im Vergleich zum Idealdruck')
+title('Änderung des Realdruckes zum Idealdruck');
+
+subplot(3,1,3)
+plot(t);
+title('Temperatur');
