@@ -8,58 +8,60 @@ splitdata2=splitdata2(:,2:3);
 data2=[splitdata1;splitdata2];
 data2=str2double(data2);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Temp = data2(:,1);
-PressureReal = data2(:,2);
-n = 5000;%length(Temp);
-PressureIdeal = zeros(n,1);
-PressureIdeal(1) = PressureReal(1);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+n               = 5000;
+TempAll            = data2(:,1); %Temperatur wird aus dem Datensatz ausgelesen 
+Temp = Temp(1:n);
+t = zeros(n,1);
+PressureRealAll   = data2(:,2); %Druck wird aus Datensatz ausgelesen 
+PressureReal = PressureRealAll(1:n);
+PressureIdeal   = zeros(n,1);
+PressureIdeal(1)= PressureReal(1);
+Differenz_RealIdeal = zeros(n,1);
+Differenz_RealIdeal_S = zeros(n,1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 for i=1:n
     t(i) = Temp(i);
     if(isnan(Temp(i)))
         t(i) = Temp(i-1);
     end
 end
+
 for i=1:n-1
     PressureIdeal(i+1) = PressureIdeal(i)*((t(i+1)+273.15)/(t(i)+273.15));
-    Differenz_RealIdeal(i) = (PressureReal(i)-PressureIdeal(i));
-    
 end
-PressureReal_S = smoothdata(PressureReal);
-PressureIdeal_S = smoothdata(PressureIdeal);
 
-% for i=1:n
-%     Differenz_RealIdeal(i) = (PressureReal_S(i)-PressureIdeal_S(i));
-% end
+PressureReal_S     = smoothdata(PressureReal);
+PressureIdeal_S    = smoothdata(PressureIdeal);
 
-%Daten Smooth
-PressureReal_Plot = PressureReal_S(1:n);
-PressureIdeal_Plot = PressureIdeal_S(1:n);
-%t_S = smoothdata(t);
-Temp_Plot = t(1:n);
-
-Differenz_RealIdeal_S = smoothdata(Differenz_RealIdeal);
-Differenz_RealIdeal_Plot = Differenz_RealIdeal_S(1:n);
-
-DruckAenderung = diff(Differenz_RealIdeal);
-DruckAenderung_S = smoothdata(DruckAenderung);
-DruckAenderung_Plot = DruckAenderung_S(1:n);
-
-%Plotten
-subplot(3,1,1)
-plot(PressureReal_Plot);
+subplot(4,1,1)
+plot(PressureReal_S);
 hold on 
-plot(PressureIdeal_Plot);
+plot(PressureIdeal_S);
 legend('Realdruck','Idealdruck')
 title('Realdruck vs. Idealdruck');
 
-subplot(3,1,2)
-plot(Differenz_RealIdeal_Plot);
+Temp_S            = smoothdata(t);   
+subplot(4,1,2)
+plot(Temp_S);
 hold on
-%plot(DruckAenderung_Plot);
-legend('Abweichung Realdurck von Idealdruck (RD-ID)','Druckänderung im Vergleich zum Idealdruck')
-title('Änderung des Realdruckes zum Idealdruck');
-
-subplot(3,1,3)
-plot(Temp_Plot);
+plot(t);
+legend('Geglättet', 'Ungeglättet');
 title('Temperatur');
+
+for i=1:n
+    Differenz_RealIdeal(i) = (PressureReal(i)-PressureIdeal(i));
+    Differenz_RealIdeal_S(i) = (PressureReal_S(i)-PressureIdeal_S(i));
+end
+DruckAenderung     = diff(Differenz_RealIdeal_S);
+DruckAenderung_S = smoothdata(DruckAenderung);
+
+subplot(4,1,3)
+plot(Differenz_RealIdeal);
+hold on
+plot(Differenz_RealIdeal_S);
+legend('Geglättet', 'Ungeglättet');
+title('Differenz zwischen Real ind Idealdruckk');
+
+subplot(4,1,4)
+plot(DruckAenderung_S);
+title('Realtive Änderungsrate');
