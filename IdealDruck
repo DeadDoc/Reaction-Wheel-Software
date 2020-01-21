@@ -1,0 +1,47 @@
+function [p] = IdealPressure(Temp, Pressure)
+p = zeros(1,5000);
+p(1) = Pressure(1);
+
+for i=1:5000
+    t(i) = Temp(i);
+    if(isnan(Temp(i)))
+        t(i) = Temp(i-1);
+    end
+end
+
+for i=1:5000
+    P_red(i) = Pressure(i);
+end
+
+for i=1:4999
+    p(i+1) = p(i)*((t(i+1)+273.15)/(t(i)+273.15));
+end
+
+subplot(5,1,1)
+P_red_S = smoothdata(P_red);
+plot(P_red_S);
+title('Realdruck')
+
+subplot(5,1,2)
+p_S = smoothdata(p);
+plot(p_S);
+title('Idealdruck - Isochore Druckänderung nach Amontons');
+
+for i=1:5000
+    Differenz_RealIdeal(i) = (P_red_S(i)-p_S(i));
+end
+
+subplot(5,1,3)
+plot(Differenz_RealIdeal);
+title('Abweichung Realdurck von Idealdruck (RD-ID)');
+
+subplot(5,1,4)
+t_S = smoothdata(t);
+plot(t_S);
+title('Temperatur');
+
+subplot(5,1,5)
+DruckAnderung = diff(Differenz_RealIdeal);
+plot(smoothdata(DruckAnderung));
+title('Druckänderung im Vergleich zum Idealdruck');
+end
