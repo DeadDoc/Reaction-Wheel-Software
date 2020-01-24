@@ -30,9 +30,31 @@ end
 for i=1:n-1
     PressureIdeal(i+1) = PressureIdeal(i)*((t(i+1)+273.15)/(t(i)+273.15));
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MinMax_TempPressure = MinMax(t,PressureReal);
+MinMax_TempPressureIdeal = MinMax(t,PressureIdeal);
+
+for i=1:length(MinMax_TempPressure(:,1))
+    MW_TempPressure(i) = (MinMax_TempPressure(i,2)+MinMax_TempPressure(i,3))/2;
+    Diff_TempPressure(i) = (MinMax_TempPressure(i,3)-MinMax_TempPressure(i,2))/2;
+end
+
+figure('Name','Druckverlust','NumberTitle','off');
+
+errorbar(MinMax_TempPressure(:,1),MW_TempPressure,Diff_TempPressure,'*b');
+hold on
+plot(MinMax_TempPressureIdeal(:,1),MW_TempPressure,'g');
+hold on
+plot(MinMax_TempPressureIdeal(:,1),MinMax_TempPressureIdeal(:,2), 'r');
+legend('Max/Min Druck','Realdruck','Idealdruck');
+xlabel('Temperatur [°C]');
+ylabel ('Druck [Pa]');
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 PressureReal_S     = smoothdata(PressureReal);
 PressureIdeal_S    = smoothdata(PressureIdeal);
+
+figure('Name','Druckverlauf','NumberTitle','off');
 
 subplot(5,1,1)
 plot(PressureReal_S);
@@ -53,14 +75,16 @@ subplot(5,1,3)
 plot(Temp_S);
 hold on
 plot(t);
-legend('Geglättet', 'Ungeglättet');
+hold on
+plot(zero_plot);
+legend('Temp. Geglättet', 'Temp. Ungeglättet');
 title('Temperatur');
 
 for i=1:n
     Differenz_RealIdeal(i) = (PressureReal(i)-PressureIdeal(i));
     Differenz_RealIdeal_S(i) = (PressureReal_S(i)-PressureIdeal_S(i));
 end
-DruckAenderung     = diff(Differenz_RealIdeal_S);
+DruckAenderung = diff(Differenz_RealIdeal_S);
 DruckAenderung_S = smoothdata(DruckAenderung);
 
 subplot(5,1,4)
@@ -69,8 +93,8 @@ hold on
 plot(Differenz_RealIdeal_S);
 hold on
 plot(zero_plot);
-legend('Geglättet', 'Ungeglättet');
-title('Differenz zwischen Real ind Idealdruckk');
+legend('Diff. Geglättet', 'Diff. Ungeglättet');
+title('Differenz zwischen Real- und Idealdruck');
 
 subplot(5,1,5)
 plot(DruckAenderung_S);
