@@ -1,0 +1,25 @@
+function [M_aus] = MinMax (M_in)
+
+M_temp = zeros(length(M_in),1);
+
+for (i=1:length(M_in))
+    M_temp(i) = M_in(i,1);
+end
+
+M_temp_bereinigt = unique (M_temp);
+
+for (i=1:length(M_temp_bereinigt))
+    z = 1;
+    for (y=1:length(M_in))
+        if M_in(y,1) == M_temp_bereinigt(i)
+            Druck(z) = M_in(y,2);
+            z = z+1;
+        end
+    end
+    Max = max(Druck);
+    Min = min(Druck);
+    M_aus(i,1) = M_temp_bereinigt(i);
+    M_aus(i,2) = Min;
+    M_aus(i,3) = Max;
+
+end 
