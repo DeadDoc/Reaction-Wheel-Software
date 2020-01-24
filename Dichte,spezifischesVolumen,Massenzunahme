@@ -1,0 +1,73 @@
+%% Reaction Wheel - Drucktest -
+%%
+
+%Datumsformat: HH:mm:ss.SSS
+%Formel p*v = R*T
+% v = (R*T)/p
+% p*V = m*R*T
+
+%% Konstanten
+R = 287; %J/kg*K spezifische Gaskonstante Luft
+data3 = [temp,pressure];
+laenge2 = length(data3);
+v = zeros(laenge2,1); %spezifisches Volumen
+roh = zeros(laenge2,1); %Dichte über die Messwerte
+dataneu = zeros(laenge2,2); %damit Daten nicht überschrieben werden
+
+for i = 1:laenge2
+    dataneu(i,1) = data3(i,1)+273.15; %umrechnung in Kelvin
+    dataneu(i,2) = data3(i,2);
+end
+
+%Berechnungen mit idealem Gasgesetz
+for i = 1:laenge2
+    v(i)= (R*dataneu(i,1))/dataneu(i,2); %Berechnung des spezifischen Volumens mit idealem Gasgesetz
+    roh(i) = 1/v(i); %Berechnung der Dichte
+end
+
+
+%% an Zeit anpassen
+
+time_nummed=datenum(time)-min(datenum(time))+datenum(day);
+
+%% Verlorene Masse
+
+maxv = max(v);
+minv = min(v);
+maxrcv = v(end);
+minrcv = v(1);
+
+diffv = maxv - minv; %in m^3/kg
+masse_diff_wc = minv*(1/maxv-1/minv)*100 %Masseunterschied in Prozent worst case
+masse_diff_rc = minrcv*(1/maxrcv-1/minrcv)*100 %Masseunterschied in Prozent real case
+
+for i=1:laenge2
+    masse_diff(i) = -(minrcv*(1/v(i)-1/minrcv)*100); %Massedifferenz über die Messwerte in %
+end
+masse_diff_rate(1) = 0;
+for i=2:laenge2
+    masse_diff_rate(i) = -(v(i-1)*(1/v(i)-1/v(i-1))); %Massendifferenz-Rate über die Messwerte
+end
+
+%% Plots
+
+figure ('Name','Dichte')
+plot(time_nummed,roh)
+xlabel('Zeit')
+ylabel('Dichte [kg/m^3]')
+
+
+figure ('Name','spezifisches Volumen')
+plot(time_nummed,v)
+xlabel('Zeit')
+ylabel('spezifisches Volumen [m^3/kg]')
+
+figure ('Name','Masseverlust')
+plot(time_nummed,masse_diff)
+xlabel('Zeit')
+ylabel('Masseverlust [%]')
+
+figure ('Name','Masseverlust-Rate')
+plot(time_nummed,masse_diff_rate)
+xlabel('Zeit')
+ylabel('Masseverlust Rate')
