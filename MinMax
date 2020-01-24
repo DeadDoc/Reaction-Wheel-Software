@@ -1,5 +1,10 @@
-function [M_aus] = MinMax (M_in)
+function [M_aus] = MinMax (T, P)
 
+for (i=0: length(T))
+    M_in(i,1) = T(i);
+    M_in(1,i) = P(i);
+end
+  
 M_temp = zeros(length(M_in),1);
 
 for (i=1:length(M_in))
@@ -23,3 +28,5 @@ for (i=1:length(M_temp_bereinigt))
     M_aus(i,3) = Max;
 
 end 
+
+
