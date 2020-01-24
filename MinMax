@@ -1,11 +1,12 @@
 function [M_aus] = MinMax (T, P)
-M_in =[T,P];
-M_temp = T;
-z = 1;
+t = round(T);
+M_temp = t;
+M_in =[M_temp,P];
+
 M_temp_bereinigt = unique(M_temp);
 
 for i=1:length(M_temp_bereinigt)
-    
+    z = 1;
     for y=1:length(M_in)
         if M_in(y,1) == M_temp_bereinigt(i)
             Druck(z) = M_in(y,2);
@@ -15,5 +16,6 @@ for i=1:length(M_temp_bereinigt)
     M_aus(i,1) = M_temp_bereinigt(i);
     M_aus(i,2) = max(Druck);
     M_aus(i,3) = min(Druck);
+    Druck = 0;
 
 end 
